@@ -1,0 +1,17 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+streamlit>=1.32.0
+langgraph>=0.1.0
+langchain-anthropic>=0.1.0
+pydantic>=2.6.0
+pandas>=2.2.0
+numpy>=1.26.0
+yfinance>=0.2.36
+plotly>=5.19.0
+chromadb>=0.4.24
+cvxpy>=1.4.2
+sqlalchemy>=2.0.28
+requests>=2.31.0
+pytest>=8.0.0
+tenacity>=8.2.3
+reportlab>=4.1.0

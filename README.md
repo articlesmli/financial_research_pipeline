@@ -1,0 +1,177 @@
+# Agentic Multi-Model Financial Research & Backtesting Pipeline
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-orange.svg)](https://langchain-ai.github.io/langgraph/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B.svg)](https://streamlit.io/)
+[![Docker](https://img.shields.io/badge/Container-Docker-2496ED.svg)](https://www.docker.com/)
+[![CI/CD Pipeline](https://github.com/articlesmli/financial-research-pipeline/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/articlesmli/financial-research-pipeline/actions/workflows/ci-cd.yml)
+
+An enterprise-grade, institutional-tier multi-agent financial platform built in Python that automates fundamental research, multi-turn adversarial investment committee debates, vector-augmented RAG retrieval, quantitative backtesting, automated PDF tearsheet generation, and live WebSocket streaming.
+
+Unlike standard LLM wrapper scripts, this platform orchestrates specialised autonomous agents powered by **Anthropic Claude** and **LangGraph** that actively debate investment theses over multiple self-correction rounds before passing validated positions into a high-performance **FastAPI** microservice, persistent database logging, and an event-driven quantitative backtesting loop.
+
+---
+
+## What This Project Was For
+
+This project was engineered to bridge the gap between qualitative AI reasoning and rigorous institutional quantitative finance. Specifically, it achieves:
+* **Multi-Turn Autonomous Investment Committee Simulation:** Simulating a hedge fund where a Macro Analyst, Bullish Researcher, and Bearish Devil's Advocate debate market theses through iterative refinement rounds.
+* **Vector RAG & SEC Filing Retrieval:** Leveraging ChromaDB to ingest corporate filings and regulatory transcripts so agents ground arguments in real regulatory data.
+* **Modern Portfolio Theory (MPT) Optimisation:** Computing optimal asset weights across multi-asset universes using Mean-Variance optimisation via `cvxpy`.
+* **Institutional Risk Governance:** Calculating Sortino Ratio, Calmar Ratio, Maximum Drawdown, 95% Daily Value at Risk (VaR), and Conditional Value at Risk (CVaR).
+* **Automated PDF Tearsheet Reports:** Instantly generating and downloading publication-ready PDF reports containing full agent verdicts and quantitative backtest metrics.
+* **Live WebSocket Streaming:** Broadcasting real-time agent deliberations and progress states directly to clients.
+* **Persistent Auditing & Webhooks:** Storing every analysis run and debate transcript in a SQLAlchemy database and dispatching real-time trade signals to webhooks.
+* **Microservices & CI/CD:** Providing clean separation of concerns via a RESTful FastAPI backend and an interactive Streamlit frontend, containerised and wired to GitHub Actions CI/CD workflows.
+
+---
+
+## Detailed System Architecture & Data Flow
+
+```text
+┌─────────────────┐       HTTP JSON / WebSocket      ┌──────────────────────┐
+│ Streamlit UI    │ ────────────────────────────> │ FastAPI Backend      │
+│ (:8501)         │ <──────────────────────────── │ (:8001/analyse)      │
+└─────────────────┘       Metrics & Reports       └──────────────────────┘
+                                                             │
+                                                             ▼
+                                                  ┌──────────────────────┐
+                                                  │ LangGraph Workflow   │
+                                                  │ (Multi-Turn Debate)  │
+                                                  └──────────────────────┘
+                                                             │
+                                                             ▼
+                                                  ┌──────────────────────┐
+                                                  │ ChromaDB Vector RAG  │
+                                                  │ & SEC Filings Store  │
+                                                  └──────────────────────┘
+                                                             │
+                                                             ▼
+                                                  ┌──────────────────────┐
+                                                  │ Quant Backtester     │
+                                                  │ (MPT + VaR/CVaR)     │
+                                                  └──────────────────────┘
+                                                             │
+                                                             ▼
+                                                  ┌──────────────────────┐
+                                                  │ SQLAlchemy Database  │
+                                                  │ (Persistent Audit)   │
+                                                  └──────────────────────┘
+
+```
+
+---
+
+## Agent Pipeline Breakdown
+
+1. **Macro Data Analyst (`src/agents/graph.py`):** Ingests macroeconomic indicators and market rate summaries via Claude to establish baseline context.
+2. **Bullish Researcher (`src/agents/graph.py`):** Constructs aggressive buy theses backed by earnings growth, market momentum, and RAG document snippets.
+3. **Bearish Devil's Advocate (`src/agents/graph.py`):** Proactively stress-tests the bullish thesis against valuation multiples, macro headwinds, and black-swan risk factors.
+4. **Risk Manager (`src/agents/graph.py`):** Acts as the final gatekeeper with a **multi-turn feedback loop**, sending theses back to researchers for refinement if risk thresholds are not met.
+5. **Backtesting Engine & MPT (`src/backtest/engine.py`):** Executes historical equity curve simulations over Pandas DataFrames to compute Sharpe, Sortino, Calmar ratios, VaR, CVaR, and hit rates.
+
+---
+
+## Comprehensive Project Repository Structure
+
+```text
+financial_research_pipeline/
+├── .github/
+│   └── workflows/              # CI/CD pipelines (GitHub Actions test & Docker push)
+├── src/
+│   ├── agents/                 # LangGraph state graph and node definitions
+│   │   ├── __init__.py
+│   │   ├── graph.py            # LangGraph workflow compilation & multi-turn loop
+│   │   └── state.py            # Pydantic schemas and AgentState definition
+│   ├── backtest/               # Event-driven backtesting engine
+│   │   ├── __init__.py
+│   │   └── engine.py           # Pandas-based backtester & advanced risk metrics
+│   ├── utils/                  # Logging, telemetry, database, RAG, and report utilities
+│   │   ├── __init__.py
+│   │   ├── alerts.py           # Webhook notification dispatcher
+│   │   ├── database.py         # SQLAlchemy ORM models & audit logging
+│   │   ├── logger.py           # Centralised logging configuration
+│   │   ├── market_data.py      # Historical price data fetcher (yfinance)
+│   │   ├── pdf_generator.py    # ReportLab PDF investment report generator
+│   │   ├── portfolio_optimizer.py # MPT & Mean-Variance asset weight optimisation
+│   │   ├── rag.py              # ChromaDB vector store for SEC filings & transcripts
+│   │   └── sec_scraper.py      # Automated SEC EDGAR Form 4 / 10-Q scraper
+│   ├── api.py                  # FastAPI backend service endpoints (/analyze, /download-pdf, /audit-logs, /ws/analysis/{ticker})
+│   └── app.py                  # Streamlit frontend interactive dashboard
+├── tests/                      # Automated test suite
+│   └── test_pipeline.py        # Pytest cases for backtesting & optimisation
+├── .env                        # Environment configuration (ANTHROPIC_API_KEY)
+├── .gitignore                  # Git ignore rules (.venv/, __pycache__, chroma_db/)
+├── Dockerfile.backend          # Backend container build configuration
+├── Dockerfile.frontend         # Frontend container build configuration
+├── docker-compose.yml          # Multi-container orchestration specification
+├── requirements.txt            # Pinned Python dependencies
+└── README.md                   # Comprehensive project documentation
+
+```
+
+---
+
+## Tech Stack & Core Libraries
+
+* **Orchestration:** LangGraph (Multi-turn stateful agent graphs & memory checkpointing)
+* **LLM Provider:** LangChain Anthropic (`ChatAnthropic` / Claude)
+* **Backend API:** FastAPI & Uvicorn (REST & WebSockets)
+* **Frontend UI:** Streamlit & Plotly
+* **Vector Store & RAG:** ChromaDB & SEC EDGAR Scraper
+* **Portfolio Optimisation:** CVXPY (Modern Portfolio Theory & Efficient Frontier)
+* **PDF Generation:** ReportLab
+* **Quant & Data Processing:** Pandas, NumPy, yfinance
+* **Persistence:** SQLAlchemy & SQLite/PostgreSQL
+* **Containerization & CI/CD:** Docker, Docker Compose, GitHub Actions
+* **License:** Open-source MIT License
+
+---
+
+## Quick Start & Deployment Guide
+
+### 1. Set Up Environment Variables
+
+Create a `.env` file in the root directory of your project and insert your Anthropic API key (plus optional webhook URL):
+
+```env
+ANTHROPIC_API_KEY=sk-ant-your-actual-key-here
+ALERT_WEBHOOK_URL=[https://hooks.slack.com/services/your/webhook/here](https://hooks.slack.com/services/your/webhook/here)
+
+```
+
+### 2. Launch with Docker Compose
+
+Build and spin up the microservice architecture in isolated containers:
+
+```bash
+docker compose up --build -d
+
+```
+
+### 3. Access the Services
+
+* **Streamlit Interactive Dashboard:** `http://localhost:8501`
+* **FastAPI Interactive Documentation (Swagger UI):** `http://localhost:8001/docs`
+* **Audit Logs Endpoint:** `http://localhost:8001/audit-logs`
+
+---
+
+## API Endpoints Reference
+
+| Endpoint | Method | Payload / Params | Description |
+| --- | --- | --- | --- |
+| `/` | `GET` | None | Welcome message and documentation link. |
+| `/health` | `GET` | None | Health check probe for container monitoring. |
+| `/audit-logs` | `GET` | None | Retrieves persistent SQLAlchemy session audit logs and past trade metrics. |
+| `/analyze` | `POST` | `{"ticker": "AAPL", "initial_capital": 100000, "period": "1mo"}` | Executes multi-turn agent debate, RAG lookup, MPT weights, quantitative backtest, and logs audit data. |
+| `/download-pdf` | `POST` | `{"ticker": "AAPL", "initial_capital": 100000, "period": "1mo"}` | Generates and streams an institutional PDF investment committee tearsheet report. |
+| `/ws/analysis/{ticker}` | `WebSocket` | Ticker path parameter | Streams real-time agent deliberations and session milestones live to clients. |
+
+---
+
+## License
+
+Distributed under the **MIT License**. See the repository for more details.
