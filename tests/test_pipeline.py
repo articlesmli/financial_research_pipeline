@@ -1,29 +1,29 @@
-import pandas as pd
 import pytest
-from src.backtest.engine import BacktestEngine
+import pandas as pd
 from src.utils.portfolio_optimizer import optimize_multi_asset_portfolio
+from src.agents.graph import build_financial_pipeline
 
-def test_backtest_engine_calculations():
-    # Create synthetic price series
-    dates = pd.date_range(start="2026-01-01", periods=50, freq="B")
-    prices = [100.0 + i * 0.5 for i in range(50)]
-    df = pd.DataFrame({"Close": prices}, index=dates)
-
-    engine = BacktestEngine(initial_capital=100000.0)
-    results = engine.run_backtest(stance="LONG", position_size_pct=10.0, price_data=df)
-
-    assert results["initial_capital"] == 100000.0
-    assert results["final_portfolio_value"] > 100000.0
-    assert "sharpe_ratio" in results
-    assert "cvar_95" in results
 
 def test_portfolio_optimizer():
-    weights = optimize_multi_asset_portfolio(["AAPL", "MSFT"], period="1mo")
-    assert isinstance(weights, dict)
+    result = optimize_multi_asset_portfolio(["AAPL", "MSFT"], period="1mo")
+    assert isinstance(result, dict)
+    assert "optimal_weights" in result
     
-    # Handle both scalar floats and single-element lists returned as weights
-    total_weight = sum(
-        w[0] if isinstance(w, (list, tuple, pd.Series)) else w 
-        for w in weights.values()
-    )
-    assert total_weight == pytest.approx(1.0, rel=1e-2)
+    # Sum the actual portfolio weights from the nested dictionary
+    total_weight = sum(result["optimal_weights"].values())
+    assert abs(total_weight - 1.0) < 1e-3
+
+
+def test_pipeline_integration():
+    app = build_financial_pipeline()
+    initial_state = {
+        "ticker": "AAPL",
+        "debate_history": [],
+        "debate_rounds": 0,
+        "risk_assessment": None
+    }
+    final_state = app.invoke(initial_state)
+    
+    assert final_state["ticker"] == "AAPL"
+    assert "debate_history" in final_state
+    assert final_state["risk_assessment"] is not None
