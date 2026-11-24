@@ -27,6 +27,7 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: .
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: pytest tests/
 
   # --- CONTINUOUS DEPLOYMENT (CD) ---
