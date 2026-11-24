@@ -62,11 +62,16 @@ def test_bear_node(mock_llm):
     assert len(updated_state["debate_history"]) == 1
     assert updated_state["debate_history"][0]["agent"] == "Bearish Advocate"
 
-def test_risk_manager_node():
+@patch("src.agents.graph.llm")
+def test_risk_manager_node(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Risk is balanced. Position sizing approved."
+    mock_llm.invoke.return_value = mock_response
+    
     initial_state: AgentState = {
-        "ticker": "AAPL", 
-        "debate_history": [{"agent": "Macro Analyst", "content": "Rates are stable."}], 
-        "debate_rounds": 0, 
+        "ticker": "AAPL",
+        "debate_history": [{"agent": "Macro Analyst", "content": "Rates are stable."}],
+        "debate_rounds": 0,
         "risk_assessment": None
     }
     updated_state = risk_manager_node(initial_state)
