@@ -15,3 +15,9 @@ requests>=2.31.0
 pytest>=8.0.0
 tenacity>=8.2.3
 reportlab>=4.1.0
+langchain-anthropic
+langchain-community
+cvxpy
+langgraph
+pandas
+pytest

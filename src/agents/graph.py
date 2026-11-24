@@ -1,8 +1,8 @@
 from typing import TypedDict, Annotated, List, Dict, Any
 from langgraph.graph import StateGraph, END
-from langchain_community.chat_models import ChatOllama
 import operator
 import time
+from langchain_ollama import ChatOllama
 
 class AgentState(TypedDict):
     ticker: str

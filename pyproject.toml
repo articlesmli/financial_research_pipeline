@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "financial_research_pipeline"
 version = "0.1.0"
-description = "An agentic multi-model financial research and backtesting pipeline built with LangGraph and Pandas."
+description = "An agentic multi-model financial research and backtesting pipeline built with LangGraph, Pandas, and Ollama."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -22,6 +22,8 @@ dependencies = [
     "pydantic>=2.0.0",
     "pandas>=2.0.0",
     "numpy>=1.20.0",
+    "langchain-ollama",
+    "cvxpy>=1.4.0",
 ]
 
 [project.optional-dependencies]

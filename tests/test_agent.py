@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from src.agents.graph import (
     macro_node,
     bull_node,
@@ -13,9 +13,11 @@ from src.agents.graph import (
 from src.backtest.engine import BacktestEngine
 
 
-@patch("src.agents.graph.llm.invoke")
-def test_macro_node(mock_invoke):
-    mock_invoke.return_value.content = "Rates are stable and inflation is cooling."
+@patch("src.agents.graph.llm")
+def test_macro_node(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Rates are stable and inflation is cooling."
+    mock_llm.invoke.return_value = mock_response
     
     initial_state: AgentState = {"ticker": "AAPL", "debate_history": [], "debate_rounds": 0, "risk_assessment": None}
     updated_state = macro_node(initial_state)
@@ -24,9 +26,11 @@ def test_macro_node(mock_invoke):
     assert len(updated_state["debate_history"]) == 1
     assert updated_state["debate_history"][0]["agent"] == "Macro Analyst"
 
-@patch("src.agents.graph.llm.invoke")
-def test_bull_node(mock_invoke):
-    mock_invoke.return_value.content = "Strong balance sheet and high consumer demand."
+@patch("src.agents.graph.llm")
+def test_bull_node(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Strong balance sheet and high consumer demand."
+    mock_llm.invoke.return_value = mock_response
     
     initial_state: AgentState = {
         "ticker": "AAPL", 
@@ -40,9 +44,11 @@ def test_bull_node(mock_invoke):
     assert len(updated_state["debate_history"]) == 1
     assert updated_state["debate_history"][0]["agent"] == "Bullish Researcher"
 
-@patch("src.agents.graph.llm.invoke")
-def test_bear_node(mock_invoke):
-    mock_invoke.return_value.content = "Valuation is stretched and supply chain risks remain."
+@patch("src.agents.graph.llm")
+def test_bear_node(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Valuation is stretched and supply chain risks remain."
+    mock_llm.invoke.return_value = mock_response
     
     initial_state: AgentState = {
         "ticker": "AAPL", 
@@ -69,9 +75,11 @@ def test_risk_manager_node():
     assert updated_state["risk_assessment"] is not None
     assert isinstance(updated_state["risk_assessment"], RiskAssessmentObject)
 
-@patch("src.agents.graph.llm.invoke")
-def test_full_pipeline_execution(mock_invoke):
-    mock_invoke.return_value.content = "Simulated market research and analysis conclusion."
+@patch("src.agents.graph.llm")
+def test_full_pipeline_execution(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Simulated market research and analysis conclusion."
+    mock_llm.invoke.return_value = mock_response
     
     app = build_financial_pipeline()
     initial_state = {"ticker": "MSFT", "debate_history": [], "debate_rounds": 0, "risk_assessment": None}

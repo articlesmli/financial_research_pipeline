@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from src.utils.portfolio_optimizer import optimize_multi_asset_portfolio
 from src.agents.graph import build_financial_pipeline
 
@@ -10,14 +10,15 @@ def test_portfolio_optimizer():
     assert isinstance(result, dict)
     assert "optimal_weights" in result
     
-    # Sum the actual portfolio weights from the nested dictionary
     total_weight = sum(result["optimal_weights"].values())
     assert abs(total_weight - 1.0) < 1e-3
 
 
-@patch("src.agents.graph.llm.invoke")
-def test_pipeline_integration(mock_invoke):
-    mock_invoke.return_value.content = "Simulated pipeline integration output."
+@patch("src.agents.graph.llm")
+def test_pipeline_integration(mock_llm):
+    mock_response = MagicMock()
+    mock_response.content = "Simulated pipeline integration output."
+    mock_llm.invoke.return_value = mock_response
     
     app = build_financial_pipeline()
     initial_state = {
