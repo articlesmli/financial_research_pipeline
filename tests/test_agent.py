@@ -13,7 +13,10 @@ from src.agents.graph import (
 from src.backtest.engine import BacktestEngine
 
 
-def test_macro_node():
+@patch("src.agents.graph.llm.invoke")
+def test_macro_node(mock_invoke):
+    mock_invoke.return_value.content = "Rates are stable and inflation is cooling."
+    
     initial_state: AgentState = {"ticker": "AAPL", "debate_history": [], "debate_rounds": 0, "risk_assessment": None}
     updated_state = macro_node(initial_state)
     
@@ -21,7 +24,10 @@ def test_macro_node():
     assert len(updated_state["debate_history"]) == 1
     assert updated_state["debate_history"][0]["agent"] == "Macro Analyst"
 
-def test_bull_node():
+@patch("src.agents.graph.llm.invoke")
+def test_bull_node(mock_invoke):
+    mock_invoke.return_value.content = "Strong balance sheet and high consumer demand."
+    
     initial_state: AgentState = {
         "ticker": "AAPL", 
         "debate_history": [{"agent": "Macro Analyst", "content": "Rates are stable."}], 
@@ -34,7 +40,10 @@ def test_bull_node():
     assert len(updated_state["debate_history"]) == 1
     assert updated_state["debate_history"][0]["agent"] == "Bullish Researcher"
 
-def test_bear_node():
+@patch("src.agents.graph.llm.invoke")
+def test_bear_node(mock_invoke):
+    mock_invoke.return_value.content = "Valuation is stretched and supply chain risks remain."
+    
     initial_state: AgentState = {
         "ticker": "AAPL", 
         "debate_history": [{"agent": "Macro Analyst", "content": "Rates are stable."}], 
@@ -62,7 +71,7 @@ def test_risk_manager_node():
 
 @patch("src.agents.graph.llm.invoke")
 def test_full_pipeline_execution(mock_invoke):
-    mock_invoke.return_value.content = "Simulated market research and analysis."
+    mock_invoke.return_value.content = "Simulated market research and analysis conclusion."
     
     app = build_financial_pipeline()
     initial_state = {"ticker": "MSFT", "debate_history": [], "debate_rounds": 0, "risk_assessment": None}
