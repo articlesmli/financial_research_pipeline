@@ -1,30 +1,22 @@
 # Agentic Multi-Model Financial Research & Backtesting Pipeline
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-[![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-orange.svg)](https://langchain-ai.github.io/langgraph/)
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B.svg)](https://streamlit.io/)
-[![Docker](https://img.shields.io/badge/Container-Docker-2496ED.svg)](https://www.docker.com/)
-[![CI/CD Pipeline](https://github.com/articlesmli/financial-research-pipeline/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/articlesmli/financial-research-pipeline/actions/workflows/ci-cd.yml)
-
 An enterprise-grade, institutional-tier multi-agent financial platform built in Python that automates fundamental research, multi-turn adversarial investment committee debates, vector-augmented RAG retrieval, quantitative backtesting, automated PDF tearsheet generation, and live WebSocket streaming.
 
-Unlike standard LLM wrapper scripts, this platform orchestrates specialised autonomous agents powered by **Anthropic Claude** and **LangGraph** that actively debate investment theses over multiple self-correction rounds before passing validated positions into a high-performance **FastAPI** microservice, persistent database logging, and an event-driven quantitative backtesting loop.
+Unlike standard LLM wrapper scripts, this platform orchestrates specialised autonomous agents powered by **Ollama** and **LangGraph** that actively debate investment theses over multiple self-correction rounds before passing validated positions into a high-performance **FastAPI** microservice, persistent database logging, and an event-driven quantitative backtesting loop.
 
 ---
 
 ## What This Project Was For
 
 This project was engineered to bridge the gap between qualitative AI reasoning and rigorous institutional quantitative finance. Specifically, it achieves:
-* **Multi-Turn Autonomous Investment Committee Simulation:** Simulating a hedge fund where a Macro Analyst, Bullish Researcher, and Bearish Devil's Advocate debate market theses through iterative refinement rounds.
-* **Vector RAG & SEC Filing Retrieval:** Leveraging ChromaDB to ingest corporate filings and regulatory transcripts so agents ground arguments in real regulatory data.
-* **Modern Portfolio Theory (MPT) Optimisation:** Computing optimal asset weights across multi-asset universes using Mean-Variance optimisation via `cvxpy`.
-* **Institutional Risk Governance:** Calculating Sortino Ratio, Calmar Ratio, Maximum Drawdown, 95% Daily Value at Risk (VaR), and Conditional Value at Risk (CVaR).
-* **Automated PDF Tearsheet Reports:** Instantly generating and downloading publication-ready PDF reports containing full agent verdicts and quantitative backtest metrics.
-* **Live WebSocket Streaming:** Broadcasting real-time agent deliberations and progress states directly to clients.
-* **Persistent Auditing & Webhooks:** Storing every analysis run and debate transcript in a SQLAlchemy database and dispatching real-time trade signals to webhooks.
-* **Microservices & CI/CD:** Providing clean separation of concerns via a RESTful FastAPI backend and an interactive Streamlit frontend, containerised and wired to GitHub Actions CI/CD workflows.
+- **Multi-Turn Autonomous Investment Committee Simulation:** Simulating a hedge fund where a Macro Analyst, Bullish Researcher, and Bearish Devil's Advocate debate market theses through iterative refinement rounds.
+- **Vector RAG & SEC Filing Retrieval:** Leveraging ChromaDB to ingest corporate filings and regulatory transcripts so agents ground arguments in real regulatory data.
+- **Modern Portfolio Theory (MPT) Optimisation:** Computing optimal asset weights across multi-asset universes using Mean-Variance optimisation via `cvxpy`.
+- **Institutional Risk Governance:** Calculating Sortino Ratio, Calmar Ratio, Maximum Drawdown, 95% Daily Value at Risk (VaR), and Conditional Value at Risk (CVaR).
+- **Automated PDF Tearsheet Reports:** Instantly generating and downloading publication-ready PDF reports containing full agent verdicts and quantitative backtest metrics.
+- **Live WebSocket Streaming:** Broadcasting real-time agent deliberations and progress states directly to clients.
+- **Persistent Auditing & Webhooks:** Storing every analysis run and debate transcript in a SQLAlchemy database and dispatching real-time trade signals to webhooks.
+- **Microservices & CI/CD:** Providing clean separation of concerns via a RESTful FastAPI backend and an interactive Streamlit frontend, containerised and wired to GitHub Actions CI/CD workflows.
 
 ---
 
@@ -60,13 +52,14 @@ This project was engineered to bridge the gap between qualitative AI reasoning a
                                                   │ (Persistent Audit)   │
                                                   └──────────────────────┘
 
+
 ```
 
 ---
 
 ## Agent Pipeline Breakdown
 
-1. **Macro Data Analyst (`src/agents/graph.py`):** Ingests macroeconomic indicators and market rate summaries via Claude to establish baseline context.
+1. **Macro Data Analyst (`src/agents/graph.py`):** Ingests macroeconomic indicators and market rate summaries via Ollama to establish baseline context.
 2. **Bullish Researcher (`src/agents/graph.py`):** Constructs aggressive buy theses backed by earnings growth, market momentum, and RAG document snippets.
 3. **Bearish Devil's Advocate (`src/agents/graph.py`):** Proactively stress-tests the bullish thesis against valuation multiples, macro headwinds, and black-swan risk factors.
 4. **Risk Manager (`src/agents/graph.py`):** Acts as the final gatekeeper with a **multi-turn feedback loop**, sending theses back to researchers for refinement if risk thresholds are not met.
@@ -102,13 +95,14 @@ financial_research_pipeline/
 │   └── app.py                  # Streamlit frontend interactive dashboard
 ├── tests/                      # Automated test suite
 │   └── test_pipeline.py        # Pytest cases for backtesting & optimisation
-├── .env                        # Environment configuration (ANTHROPIC_API_KEY)
+├── .env                        # Environment configuration (OLLAMA_MODEL / local settings)
 ├── .gitignore                  # Git ignore rules (.venv/, __pycache__, chroma_db/)
 ├── Dockerfile.backend          # Backend container build configuration
 ├── Dockerfile.frontend         # Frontend container build configuration
 ├── docker-compose.yml          # Multi-container orchestration specification
 ├── requirements.txt            # Pinned Python dependencies
 └── README.md                   # Comprehensive project documentation
+
 
 ```
 
@@ -117,7 +111,7 @@ financial_research_pipeline/
 ## Tech Stack & Core Libraries
 
 * **Orchestration:** LangGraph (Multi-turn stateful agent graphs & memory checkpointing)
-* **LLM Provider:** LangChain Anthropic (`ChatAnthropic` / Claude)
+* **LLM Provider:** LangChain Ollama (`ChatOllama` / Local LLM)
 * **Backend API:** FastAPI & Uvicorn (REST & WebSockets)
 * **Frontend UI:** Streamlit & Plotly
 * **Vector Store & RAG:** ChromaDB & SEC EDGAR Scraper
@@ -134,11 +128,12 @@ financial_research_pipeline/
 
 ### 1. Set Up Environment Variables
 
-Create a `.env` file in the root directory of your project and insert your Anthropic API key (plus optional webhook URL):
+Create a `.env` file in the root directory of your project and configure your local Ollama connection (plus optional webhook URL):
 
 ```env
-ANTHROPIC_API_KEY=sk-ant-your-actual-key-here
+OLLAMA_MODEL=llama3
 ALERT_WEBHOOK_URL=[https://hooks.slack.com/services/your/webhook/here](https://hooks.slack.com/services/your/webhook/here)
+
 
 ```
 
@@ -148,6 +143,7 @@ Build and spin up the microservice architecture in isolated containers:
 
 ```bash
 docker compose up --build -d
+
 
 ```
 
@@ -174,4 +170,5 @@ docker compose up --build -d
 
 ## License
 
-Distributed under the **MIT License**. See the repository for more details.
+Distributed under the **MIT License**. See the repository for more details. [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
