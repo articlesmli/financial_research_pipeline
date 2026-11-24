@@ -1,6 +1,6 @@
 from typing import TypedDict, Annotated, List, Dict, Any
 from langgraph.graph import StateGraph, END
-from langchain_anthropic import ChatAnthropic
+from langchain_community.chat_models import ChatOllama
 import operator
 import time
 
@@ -11,7 +11,7 @@ class AgentState(TypedDict):
     risk_assessment: Any
 
 # Note: Ensure this model string matches your active Anthropic SDK version/tier
-llm = ChatAnthropic(model="claude-sonnet-5-5")
+llm = ChatOllama(model="llama3")
 
 def extract_text(response) -> str:
     """Robust helper to extract plain text from LLM responses regardless of block structure."""
