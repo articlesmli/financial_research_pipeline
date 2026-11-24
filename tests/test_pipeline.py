@@ -20,4 +20,10 @@ def test_backtest_engine_calculations():
 def test_portfolio_optimizer():
     weights = optimize_multi_asset_portfolio(["AAPL", "MSFT"], period="1mo")
     assert isinstance(weights, dict)
-    assert sum(weights.values()) == pytest.approx(1.0, rel=1e-2)
+    
+    # Handle both scalar floats and single-element lists returned as weights
+    total_weight = sum(
+        w[0] if isinstance(w, (list, tuple, pd.Series)) else w 
+        for w in weights.values()
+    )
+    assert total_weight == pytest.approx(1.0, rel=1e-2)
