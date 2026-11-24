@@ -27,7 +27,7 @@ def optimize_multi_asset_portfolio(tickers: list[str], period: str = "1yr") -> d
     ]
     
     problem = cp.Problem(objective, constraints)
-    problem.solve(solver=cp.ECOS)
+    problem.solve()  # Let CVXPY auto-select available solver
 
     weights = w.value if w.value is not None else np.ones(n) / n
     weights = np.clip(weights, 0, 1)

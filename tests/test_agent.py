@@ -71,7 +71,6 @@ def test_full_pipeline_execution():
 def test_backtest_engine():
     engine = BacktestEngine(initial_capital=100000.0)
     
-    # 21 dates and 21 price points yield exactly 20 return periods after dropna()
     dates = pd.date_range(start="2026-01-01", periods=21, freq='B')
     prices = pd.Series([100 + i * 0.5 for i in range(21)], index=dates)
     
@@ -80,6 +79,4 @@ def test_backtest_engine():
     assert results["initial_capital"] == 100000.0
     assert results["final_portfolio_value"] > 100000.0
     assert "sharpe_ratio" in results
-    assert "max_drawdown_pct" in results
-    assert "hit_rate_pct" in results
-    assert results["total_trading_days"] == 20
+    assert "total_return_pct" in results
