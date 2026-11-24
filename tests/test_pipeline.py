@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+from unittest.mock import patch
 from src.utils.portfolio_optimizer import optimize_multi_asset_portfolio
 from src.agents.graph import build_financial_pipeline
 
@@ -14,7 +15,10 @@ def test_portfolio_optimizer():
     assert abs(total_weight - 1.0) < 1e-3
 
 
-def test_pipeline_integration():
+@patch("src.agents.graph.llm.invoke")
+def test_pipeline_integration(mock_invoke):
+    mock_invoke.return_value.content = "Simulated pipeline integration output."
+    
     app = build_financial_pipeline()
     initial_state = {
         "ticker": "AAPL",

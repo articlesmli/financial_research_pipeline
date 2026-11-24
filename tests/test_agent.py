@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+from unittest.mock import patch
 from src.agents.graph import (
     macro_node,
     bull_node,
@@ -59,7 +60,10 @@ def test_risk_manager_node():
     assert updated_state["risk_assessment"] is not None
     assert isinstance(updated_state["risk_assessment"], RiskAssessmentObject)
 
-def test_full_pipeline_execution():
+@patch("src.agents.graph.llm.invoke")
+def test_full_pipeline_execution(mock_invoke):
+    mock_invoke.return_value.content = "Simulated market research and analysis."
+    
     app = build_financial_pipeline()
     initial_state = {"ticker": "MSFT", "debate_history": [], "debate_rounds": 0, "risk_assessment": None}
     final_state = app.invoke(initial_state)
