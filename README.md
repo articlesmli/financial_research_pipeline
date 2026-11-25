@@ -23,7 +23,7 @@ This project was engineered to bridge the gap between qualitative AI reasoning a
 ## Detailed System Architecture & Data Flow
 
 ```text
-┌─────────────────┐       HTTP JSON / WebSocket      ┌──────────────────────┐
+┌─────────────────┐       HTTP JSON / WebSocket   ┌──────────────────────┐
 │ Streamlit UI    │ ────────────────────────────> │ FastAPI Backend      │
 │ (:8501)         │ <──────────────────────────── │ (:8001/analyse)      │
 └─────────────────┘       Metrics & Reports       └──────────────────────┘
