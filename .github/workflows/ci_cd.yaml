@@ -30,13 +30,13 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: pytest tests/
 
-  # --- CONTINUOUS DEPLOYMENT (CD) ---
+  # --- CONTINUOUS DEPLOYMENT (CD - BUILD & PUSH) ---
   deploy-docker:
-    needs: test  # Only runs if the CI test suite passes successfully!
+    needs: test  # Only runs if the CI test suite passes successfully![cite: 3]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write  # Required to push images to GHCR
+      packages: write  # Required to push images to GHCR[cite: 3]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     steps:
@@ -68,3 +68,32 @@ jobs:
           file: Dockerfile.frontend
           push: true
           tags: ghcr.io/${{ github.repository }}-frontend:latest
+
+  # --- CONTINUOUS DEPLOYMENT (CD - REMOTE SERVER) ---
+  deploy-server:
+    needs: deploy-docker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/my-app
+            cd ~/my-app
+            
+            # Write your docker-compose.yaml remotely or copy it over if needed
+            # (Alternatively, transfer docker-compose.yaml via scp action before this step)
+            
+            echo "Pulling latest images from GHCR..."
+            docker compose pull
+            
+            echo "Restarting containers..."
+            docker compose up -d --remove-orphans
