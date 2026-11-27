@@ -32,11 +32,11 @@ jobs:
 
   # --- CONTINUOUS DEPLOYMENT (CD - BUILD & PUSH) ---
   deploy-docker:
-    needs: test  # Only runs if the CI test suite passes successfully![cite: 3]
+    needs: test  # Only runs if the CI test suite passes successfully!
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write  # Required to push images to GHCR[cite: 3]
+      packages: write  # Required to push images to GHCR
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     steps:
@@ -72,7 +72,7 @@ jobs:
   # --- CONTINUOUS DEPLOYMENT (CD - REMOTE SERVER) ---
   deploy-server:
     needs: deploy-docker
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     steps:
@@ -82,15 +82,12 @@ jobs:
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
+          host: 10.97.0.251
+          username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             mkdir -p ~/my-app
             cd ~/my-app
-            
-            # Write your docker-compose.yaml remotely or copy it over if needed
-            # (Alternatively, transfer docker-compose.yaml via scp action before this step)
             
             echo "Pulling latest images from GHCR..."
             docker compose pull
