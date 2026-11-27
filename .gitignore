@@ -32,3 +32,4 @@ venv/
 # virtual server
 .vscode/
 wheelhouse/
+wheelhouse/*

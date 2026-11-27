@@ -1,6 +1,6 @@
 # Agentic Multi-Model Financial Research & Backtesting Pipeline
 
-An enterprise-grade, institutional-tier multi-agent financial platform built in Python that automates fundamental research, multi-turn adversarial investment committee debates, vector-augmented RAG retrieval, quantitative backtesting, automated PDF tearsheet generation, and live WebSocket streaming.
+An enterprise-grade, institutional-tier multi-agent financial platform built in Python that automates fundamental research, multi-turn adversarial investment committee debates, vector-augmented RAG retrieval, quantitative backtesting, automated PDF tearsheet generation, live WebSocket streaming, and **100% offline CI/CD container deployment**.
 
 Unlike standard LLM wrapper scripts, this platform orchestrates specialised autonomous agents powered by **Ollama** and **LangGraph** that actively debate investment theses over multiple self-correction rounds before passing validated positions into a high-performance **FastAPI** microservice, persistent database logging, and an event-driven quantitative backtesting loop.
 
@@ -8,7 +8,7 @@ Unlike standard LLM wrapper scripts, this platform orchestrates specialised auto
 
 ## What This Project Was For
 
-This project was engineered to bridge the gap between qualitative AI reasoning and rigorous institutional quantitative finance. Specifically, it achieves:
+This project was engineered to bridge the gap between qualitative AI reasoning and rigorous institutional quantitative finance, featuring robust support for isolated, air-gapped server environments:
 - **Multi-Turn Autonomous Investment Committee Simulation:** Simulating a hedge fund where a Macro Analyst, Bullish Researcher, and Bearish Devil's Advocate debate market theses through iterative refinement rounds.
 - **Vector RAG & SEC Filing Retrieval:** Leveraging ChromaDB to ingest corporate filings and regulatory transcripts so agents ground arguments in real regulatory data.
 - **Modern Portfolio Theory (MPT) Optimisation:** Computing optimal asset weights across multi-asset universes using Mean-Variance optimisation via `cvxpy`.
@@ -16,7 +16,7 @@ This project was engineered to bridge the gap between qualitative AI reasoning a
 - **Automated PDF Tearsheet Reports:** Instantly generating and downloading publication-ready PDF reports containing full agent verdicts and quantitative backtest metrics.
 - **Live WebSocket Streaming:** Broadcasting real-time agent deliberations and progress states directly to clients.
 - **Persistent Auditing & Webhooks:** Storing every analysis run and debate transcript in a SQLAlchemy database and dispatching real-time trade signals to webhooks.
-- **Microservices & CI/CD:** Providing clean separation of concerns via a RESTful FastAPI backend and an interactive Streamlit frontend, containerised and wired to GitHub Actions CI/CD workflows.
+- **100% Offline CI/CD & Multipass Deployment:** Fully containerised microservices designed for air-gapped or restricted-network target environments using a local Python wheelhouse and static Docker binaries.
 
 ---
 
@@ -51,7 +51,6 @@ This project was engineered to bridge the gap between qualitative AI reasoning a
                                                   │ SQLAlchemy Database  │
                                                   │ (Persistent Audit)   │
                                                   └──────────────────────┘
-
 
 ```
 
@@ -93,16 +92,17 @@ financial_research_pipeline/
 │   │   └── sec_scraper.py      # Automated SEC EDGAR Form 4 / 10-Q scraper
 │   ├── api.py                  # FastAPI backend service endpoints (/analyze, /download-pdf, /audit-logs, /ws/analysis/{ticker})
 │   └── app.py                  # Streamlit frontend interactive dashboard
+├── wheelhouse/                 # Pre-cached Python 3.11 wheels for 100% offline pip installation
 ├── tests/                      # Automated test suite
 │   └── test_pipeline.py        # Pytest cases for backtesting & optimisation
 ├── .env                        # Environment configuration (OLLAMA_MODEL / local settings)
-├── .gitignore                  # Git ignore rules (.venv/, __pycache__, chroma_db/)
-├── Dockerfile.backend          # Backend container build configuration
-├── Dockerfile.frontend         # Frontend container build configuration
+├── .gitignore                  # Git ignore rules (.venv/, wheelhouse/, __pycache__)
+├── Dockerfile.backend          # Backend container build configuration (offline wheelhouse support)
+├── Dockerfile.frontend         # Frontend container build configuration (offline wheelhouse support)
 ├── docker-compose.yml          # Multi-container orchestration specification
+├── deploy.sh                   # Automated deployment script for target VMs
 ├── requirements.txt            # Pinned Python dependencies
 └── README.md                   # Comprehensive project documentation
-
 
 ```
 
@@ -119,7 +119,7 @@ financial_research_pipeline/
 * **PDF Generation:** ReportLab
 * **Quant & Data Processing:** Pandas, NumPy, yfinance
 * **Persistence:** SQLAlchemy & SQLite/PostgreSQL
-* **Containerization & CI/CD:** Docker, Docker Compose, GitHub Actions
+* **Containerization & CI/CD:** Docker, Docker Compose, Static Binaries, GitHub Actions
 * **License:** Open-source MIT License
 
 ---
@@ -134,23 +134,38 @@ Create a `.env` file in the root directory of your project and configure your lo
 OLLAMA_MODEL=llama3
 ALERT_WEBHOOK_URL=[https://hooks.slack.com/services/your/webhook/here](https://hooks.slack.com/services/your/webhook/here)
 
-
 ```
 
-### 2. Launch with Docker Compose
+### 2. Local Development Launch
 
-Build and spin up the microservice architecture in isolated containers:
+Spin up the application containers using Docker Compose:
 
 ```bash
 docker compose up --build -d
 
+```
+
+### 3. 100% Offline Multipass / Isolated VM Deployment
+
+For air-gapped environments or isolated Ubuntu VMs (such as a Multipass mock server), use the automated deployment script which leverages a local `wheelhouse/` directory:
+
+```bash
+# Execute deployment script from host
+./deploy.sh
 
 ```
 
-### 3. Access the Services
+Inside your Dockerfiles, offline installation is enforced via:
 
-* **Streamlit Interactive Dashboard:** `http://localhost:8501`
-* **FastAPI Interactive Documentation (Swagger UI):** `http://localhost:8001/docs`
+```dockerfile
+RUN pip install --no-index --find-links=/app/wheelhouse -r requirements.txt
+
+```
+
+### 4. Access the Services
+
+* **Streamlit Interactive Dashboard:** `http://localhost:8501` (or via SSH port forwarding `-L 8501:localhost:8501`)
+* **FastAPI Interactive Documentation (Swagger UI):** `http://localhost:8001/docs` (or via SSH port forwarding `-L 8001:localhost:8001`)
 * **Audit Logs Endpoint:** `http://localhost:8001/audit-logs`
 
 ---
@@ -170,5 +185,5 @@ docker compose up --build -d
 
 ## License
 
-Distributed under the **MIT License**. See the repository for more details. [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Distributed under the **MIT License**. See the repository for more details. 
 
