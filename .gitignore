@@ -1,35 +1,36 @@
-
-*$py.class
-build/
-.coverage
-coverage.xml
-dist/
-.DS_Store
-echo "__pycache__/" >> .gitignore
-echo "*.pyc" >> .gitignore
-echo "wheelhouse/" >> .gitignore
-*.egg-info/
-.eggs/
-.env
-env/
-ENV/
-# Environment variables & secrets
-htmlcov/
-.idea/
-# IDE & OS Specific
+# Python Cache & Compiled Files
 __pycache__/
 *.py[cod]
-.pytest_cache/
-# Python Cache & Compiled Files
+*$py.class
 *.so
-*.swo
-*.swp
+.eggs/
+*.egg-info/
+dist/
+build/
+
 # Testing & Coverage
+.pytest_cache/
 .tox/
-.venv/
-venv/
-# Virtual Environments
-# virtual server
+.coverage
+htmlcov/
+coverage.xml
+
+# IDE & OS Specific
 .vscode/
-wheelhouse/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Environment variables & secrets
+.env
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Wheelhouse binary cache (exclude heavy wheels, keep gitkeep for CI)
 wheelhouse/*
+!wheelhouse/.gitkeep
