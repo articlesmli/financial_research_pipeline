@@ -27,16 +27,16 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: .
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OLLAMA_MODEL: llama3
         run: pytest tests/
 
   # --- CONTINUOUS DEPLOYMENT (CD - BUILD & PUSH) ---
   deploy-docker:
-    needs: test  # Only runs if the CI test suite passes successfully!
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write  # Required to push images to GHCR
+      packages: write
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     steps:
@@ -59,7 +59,9 @@ jobs:
           context: .
           file: Dockerfile.backend
           push: true
-          tags: ghcr.io/${{ github.repository }}-backend:latest
+          tags: |
+            ghcr.io/${{ github.repository }}-backend:latest
+            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
 
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
@@ -67,26 +69,42 @@ jobs:
           context: .
           file: Dockerfile.frontend
           push: true
-          tags: ghcr.io/${{ github.repository }}-frontend:latest
+          tags: |
+            ghcr.io/${{ github.repository }}-frontend:latest
+            ghcr.io/${{ github.repository }}-frontend:${{ github.sha }}
 
-  # --- CONTINUOUS DEPLOYMENT (CD - REMOTE SERVER) ---
+  # --- CONTINUOUS DEPLOYMENT (CD - PRODUCTION SERVER) ---
   deploy-server:
     needs: deploy-docker
     runs-on: self-hosted
+    environment: production
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 10.97.0.251
-          username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            mkdir -p ~/my-app
+      - name: Configure Secure SSH Agent & Deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # Start ssh-agent and register private key securely
+          eval $(ssh-agent -s)
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          
+          # Register target VM host key securely
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
+
+          # Ensure target directory exists and copy docker-compose.yaml
+          ssh "$SSH_USER@$SERVER_IP" "mkdir -p ~/my-app"
+          scp docker-compose.yaml "$SSH_USER@$SERVER_IP:~/my-app/docker-compose.yaml"
+
+          # Execute remote deployment over SSH
+          ssh "$SSH_USER@$SERVER_IP" << 'EOF'
+            set -e
             cd ~/my-app
             
             echo "Pulling latest images from GHCR..."
@@ -94,3 +112,6 @@ jobs:
             
             echo "Restarting containers..."
             docker compose up -d --remove-orphans
+            
+            echo "Deployment completed successfully!"
+          EOF
