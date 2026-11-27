@@ -2,12 +2,13 @@ version: '3.8'
 
 services:
   backend:
-    image: ghcr.io/YOUR_GITHUB_USERNAME/financial_backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     container_name: financial_backend
     ports:
       - "8001:8001"
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DATABASE_URL=${DATABASE_URL:-sqlite:///./pipeline_audit.db}
       - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
     networks:
@@ -15,7 +16,9 @@ services:
     restart: always
 
   frontend:
-    image: ghcr.io/YOUR_GITHUB_USERNAME/financial_frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     container_name: financial_frontend
     ports:
       - "8501:8501"
